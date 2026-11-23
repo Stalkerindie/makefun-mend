@@ -878,7 +878,11 @@ function run(args: string[]): { code: number; out: string[] } {
   try {
     text = readFileSync(file ?? 0, 'utf8');
   } catch {
-    if (file !== null) return { code: 2, out: ['error: no-patch'] };
+    // The patch is read from the PATCH file, or from standard input when
+    // PATCH is absent or `-` (section 1); a patch that cannot be read from
+    // either source is `error: no-patch` (section 2). A failed stdin read
+    // used to fall through as an empty patch instead.
+    return { code: 2, out: ['error: no-patch'] };
   }
   const lines = patchLines(text);
   const kind = format === null || format === 'auto' ? detect(lines) : format;
